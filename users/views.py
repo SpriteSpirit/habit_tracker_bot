@@ -1,5 +1,6 @@
-from django.shortcuts import render
 
-
-def index(request):
-    pass
+# TODO: дженерики CRUD пользователя
+# TODO: доступы permissions для просмотра и редактирования профиля пользователя
+# TODO: доступы permissions для просмотра и редактирования профиля пользователя
+# TODO: сериализатор для модели пользователя
+# TODO: прописать маршрутизацию urls

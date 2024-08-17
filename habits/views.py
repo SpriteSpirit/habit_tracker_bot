@@ -39,4 +39,10 @@ class SendRemindersView(APIView):
             return Response()
 
 
-from config.celery import add
+# TODO: дженерики CRUD привычки
+# TODO: создать валидаторы validators.py
+# TODO: в сериализатор добавить валидаторы
+# TODO: настроить маршрутизацию
+# TODO: настроить пагинацию
+# TODO: создать тесты
+# TODO: создать .env и перенести все уязвимые данные
