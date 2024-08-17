@@ -32,7 +32,7 @@ class Habit(models.Model):
     reward = models.CharField(max_length=100, **NULLABLE, verbose_name='Вознаграждение')
     linked_habit = models.ForeignKey('self', on_delete=models.SET_NULL, **NULLABLE, related_name='linked_habits',
                                      verbose_name='Связанная привычка', help_text='Только для приятных привычек')
-    public = models.BooleanField(default=False, verbose_name='Публичная')
+    is_public = models.BooleanField(default=False, verbose_name='Публичная')
 
     class Meta:
         verbose_name = 'Привычка'
