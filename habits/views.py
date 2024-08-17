@@ -1,3 +1,7 @@
 from django.shortcuts import render
 
-# Create your views here.
+
+class HabitViewSet(ModelViewSet):
+    """  """
+    queryset = Habit.objects.all()
+    serializer_class = HabitSerializer
