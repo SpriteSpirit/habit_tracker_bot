@@ -4,6 +4,7 @@ from django.db import models
 
 class User(AbstractUser):
     """ Пользователь """
+
     username = None
 
     email = models.EmailField(unique=True, verbose_name='Email')
