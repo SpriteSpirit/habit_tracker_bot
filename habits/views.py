@@ -39,7 +39,6 @@ class SendRemindersView(APIView):
             return Response()
 
 
-# TODO: дженерики CRUD привычки
 # TODO: создать валидаторы validators.py
 # TODO: в сериализатор добавить валидаторы
 # TODO: настроить маршрутизацию
