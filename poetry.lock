@@ -338,6 +338,17 @@ python-jose = ["python-jose (==3.3.0)"]
 test = ["cryptography", "freezegun", "pytest", "pytest-cov", "pytest-django", "pytest-xdist", "tox"]
 
 [[package]]
+name = "generics"
+version = "7.0.0"
+description = "A classy toolkit designed with OOP in mind."
+optional = false
+python-versions = "*"
+files = [
+    {file = "generics-7.0.0-py2.py3-none-any.whl", hash = "sha256:ab22c13f2adf4d65402ca448494c9561b762e56316971f6528eada6a82e16619"},
+    {file = "generics-7.0.0.tar.gz", hash = "sha256:abd5c0fe619f02ee3340bf4b29f90dce9bd7bea88b3e4a369c8c2563014eab9c"},
+]
+
+[[package]]
 name = "idna"
 version = "3.7"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -737,4 +748,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "410c2adbe0257cb8f3d05f97eaa010f0a9e5705312329c256da27c2b08154294"
+content-hash = "018bb9bc5e9d9c98e7b2f88929d603ed1068fd14808112dc8c60043a54b995a7"
