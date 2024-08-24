@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from habits.models import Habit
 from habits.permissions import IsOwnerOrReadOnly
-from habits.serializers import UserHabitSerializer, HabitCreateSerializer
+from habits.serializers import HabitSerializer, HabitCreateSerializer
 
 
 class HabitViewSet(viewsets.ModelViewSet):
@@ -17,7 +17,7 @@ class HabitViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'update']:
             return HabitCreateSerializer(*args, **kwargs)
         elif self.action in ['list', 'retrieve']:
-            return UserHabitSerializer(*args, **kwargs)
+            return HabitSerializer(*args, **kwargs)
         return super().get_serializer(*args, **kwargs)
 
     def perform_create(self, serializer):

@@ -10,7 +10,7 @@ class PleasantHabitSerializer(serializers.ModelSerializer):
         fields = ('user', 'action', 'place', 'frequency', 'execution_time', 'is_public', 'linked_habit',)
 
 
-class UserHabitSerializer(serializers.ModelSerializer):
+class HabitSerializer(serializers.ModelSerializer):
     """ Сериализатор привычки """
     pleasant_habit = serializers.SerializerMethodField()
 
@@ -18,9 +18,9 @@ class UserHabitSerializer(serializers.ModelSerializer):
         model = Habit
         fields = '__all__'
 
-    def get_pleasant_habit(self, obj):
+    def get_pleasant_habit(self, instance):
         # Получить список приятных привычек для текущей привычки
-        pleasant_habits = obj.linked_habits.all()
+        pleasant_habits = instance.linked_habits.all()
         serializer = PleasantHabitSerializer(pleasant_habits, many=True)
         return serializer.data
 
