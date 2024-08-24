@@ -57,6 +57,13 @@ class HabitTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['action'], 'habit1')
 
+    def test_str_representation(self):
+        """Проверяет, что метод __str__ возвращает корректную строку."""
+        instance_str = f'{self.habit.action}: {self.habit.time} - {self.habit.place}'
+        expected_str = f'habit1: 15:00:00 - test_place'
+        self.assertEqual(str(instance_str), expected_str)
+
+
 
     def test_update_habit(self):
         """ Тестирование изменения информации о привычке """
