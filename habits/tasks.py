@@ -1,4 +1,4 @@
-from datetime import timezone, datetime
+from datetime import timezone, datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
 from celery import shared_task
@@ -6,6 +6,7 @@ import telebot
 from django.contrib.sites import requests
 
 from habits.models import Habit
+from habits.services import create_telegram_message
 
 API_TOKEN = '7367321933:AAFGQqo63iYZqTj7liHqLH6SLxPmIL8ig_w'
 

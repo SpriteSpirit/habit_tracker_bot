@@ -27,7 +27,7 @@ class HabitViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
     def get_queryset(self):
-        """ Получает привычки, отфильтрованные по параметру запроса `is_public` """
+        """ Получает привычки, отфильтрованные по параметру запроса is_public """
 
         if self.request.query_params.get('is_public'):
             return Habit.objects.filter(is_public=True)
@@ -46,5 +46,4 @@ class SendRemindersView(APIView):
 
             return Response()
 
-# TODO: настроить маршрутизацию
 # TODO: создать тесты

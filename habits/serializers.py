@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from.models import Habit
+from .models import Habit
 from .validators import PleasantHabit
 
 
@@ -23,6 +23,7 @@ class UserHabitSerializer(serializers.ModelSerializer):
         pleasant_habits = obj.linked_habits.all()
         serializer = PleasantHabitSerializer(pleasant_habits, many=True)
         return serializer.data
+
 
 class HabitCreateSerializer(serializers.ModelSerializer):
     """ Сериализатор создания привычки """

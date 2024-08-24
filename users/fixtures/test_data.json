@@ -1,0 +1,101 @@
+[
+{
+    "model": "users.user",
+    "pk": 1,
+    "fields": {
+        "password": "admin",
+        "last_login": "2024-08-17T16:20:52.746Z",
+        "is_superuser": true,
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2024-08-17T16:20:49.913Z",
+        "email": "admin@localhost",
+        "first_name": "admin",
+        "last_name": "",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "users.user",
+    "pk": 2,
+    "fields": {
+        "password": "moderator",
+        "last_login": null,
+        "is_superuser": false,
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2024-08-18T20:19:30.489Z",
+        "email": "moderator@localhost",
+        "first_name": "moderator",
+        "last_name": "",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "users.user",
+    "pk": 3,
+    "fields": {
+        "password": "user",
+        "last_login": null,
+        "is_superuser": false,
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2024-08-18T20:24:34.465Z",
+        "email": "user@localhost",
+        "first_name": "user",
+        "last_name": "",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "habits.habit",
+    "pk": 1,
+    "fields": {
+        "user": 1,
+        "action": "habit1",
+        "place": "test",
+        "time": "15:00:00",
+        "frequency": 1,
+        "execution_time": "00:02:00",
+        "is_pleasant": true,
+        "reward": null,
+        "linked_habit": null,
+        "is_public": true
+    }
+},
+{
+    "model": "habits.habit",
+    "pk": 2,
+    "fields": {
+        "user": 1,
+        "action": "habit2",
+        "place": "test",
+        "time": "15:00:00",
+        "frequency": 1,
+        "execution_time": "00:02:00",
+        "is_pleasant": true,
+        "reward": "null",
+        "linked_habit": 1,
+        "is_public": true
+    }
+},
+    {
+    "model": "habits.habit",
+    "pk": 3,
+    "fields": {
+        "user": 1,
+        "action": "habit3",
+        "place": "test",
+        "time": "15:00:00",
+        "frequency": 1,
+        "execution_time": "00:02:00",
+        "is_pleasant": false,
+        "reward": "AWARD",
+        "linked_habit": null,
+        "is_public": true
+    }
+}
+]
