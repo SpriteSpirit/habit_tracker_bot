@@ -1,21 +1,25 @@
-from rest_framework import viewsets, pagination
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from habits.models import Habit
 from habits.permissions import IsOwnerOrReadOnly
-from habits.serializers import UserHabitSerializer
+from habits.serializers import UserHabitSerializer, HabitCreateSerializer
 
 
 class HabitViewSet(viewsets.ModelViewSet):
     """ Контроллер для управления привычками """
 
     queryset = Habit.objects.all()
-    serializer_class = UserHabitSerializer
-
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    pagination_class = pagination.PageNumberPagination
+
+    def get_serializer(self, *args, **kwargs):
+        if self.action == 'create':
+            return HabitCreateSerializer(*args, **kwargs)
+        elif self.action in ['list', 'retrieve']:
+            return UserHabitSerializer(*args, **kwargs)
+        return super().get_serializer(*args, **kwargs)
 
     def perform_create(self, serializer):
         """ Сохраняет привычку пользователя """
@@ -42,8 +46,5 @@ class SendRemindersView(APIView):
 
             return Response()
 
-
-# TODO: создать валидаторы validators.py
-# TODO: в сериализатор добавить валидаторы
 # TODO: настроить маршрутизацию
 # TODO: создать тесты

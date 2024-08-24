@@ -1,8 +1,4 @@
-from datetime import timedelta
-
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-
 from users.models import User
 
 
@@ -18,15 +14,12 @@ class Habit(models.Model):
         (7, 'Еженедельно')
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='habits', verbose_name='Пользователь')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='habits', verbose_name='Пользователь', **NULLABLE)
     action = models.CharField(max_length=100, verbose_name='Действие')
     place = models.CharField(max_length=50, verbose_name='Место')
     time = models.TimeField(verbose_name='Время')
-    frequency = models.PositiveIntegerField(default=7, choices=choices,
-                                            validators=[MinValueValidator(1), MaxValueValidator(7)],
-                                            verbose_name='Периодичность')
-    execution_time = models.DurationField(max_length=2, validators=[MaxValueValidator(timedelta(seconds=120))],
-                                          verbose_name='Время на выполнение')
+    frequency = models.PositiveIntegerField(default=1, choices=choices, verbose_name='Периодичность')
+    execution_time = models.DurationField(max_length=2, verbose_name='Время на выполнение')
     is_pleasant = models.BooleanField(default=False, verbose_name='Приятная привычка')
     reward = models.CharField(max_length=100, **NULLABLE, verbose_name='Вознаграждение')
     linked_habit = models.ForeignKey('self', on_delete=models.SET_NULL, **NULLABLE, related_name='linked_habits',
