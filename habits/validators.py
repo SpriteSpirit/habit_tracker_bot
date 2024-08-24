@@ -40,4 +40,5 @@ class FrequencyValidator:
 
     def __call__(self, value):
         if value < self.min_value or value > self.max_value:
-            raise ValidationError(f'Периодичность должна быть от {self.min_value} до {self.max_value} дней')
+            raise ValidationError(f'Периодичность должна быть от {self.min_value} до {self.max_value} дней.\n'
+                                  f'Нельзя выполнять привычку реже, чем 1 раз в 7 дней.')

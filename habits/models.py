@@ -9,16 +9,11 @@ class Habit(models.Model):
     """ Привычка """
     objects = models.Manager()
 
-    choices = [
-        (1, 'Ежедневно'),
-        (7, 'Еженедельно')
-    ]
-
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='habits', verbose_name='Пользователь', **NULLABLE)
     action = models.CharField(max_length=100, verbose_name='Действие')
     place = models.CharField(max_length=50, verbose_name='Место')
     time = models.TimeField(verbose_name='Время')
-    frequency = models.PositiveIntegerField(default=1, choices=choices, verbose_name='Периодичность')
+    frequency = models.PositiveIntegerField(default=1,  verbose_name='Периодичность')
     execution_time = models.DurationField(max_length=2, verbose_name='Время на выполнение')
     is_pleasant = models.BooleanField(default=False, verbose_name='Приятная привычка')
     reward = models.CharField(max_length=100, **NULLABLE, verbose_name='Вознаграждение')
