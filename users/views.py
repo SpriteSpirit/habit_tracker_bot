@@ -5,7 +5,6 @@ from users.serializers import UserSerializer
 
 
 # TODO: доступы permissions для просмотра и редактирования профиля пользователя
-# TODO: доступы permissions для просмотра и редактирования профиля пользователя
 
 class UserListAPIView(generics.ListAPIView):
     """ Список всех пользователей """

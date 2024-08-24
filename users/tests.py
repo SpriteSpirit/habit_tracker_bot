@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 
 from users.models import User
+from users.serializers import UserSerializer
 
 
 class UserTestCase(APITestCase):
@@ -113,3 +114,82 @@ class TokenTestCase(APITestCase):
         # 3. Проверить ответ
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('access', response.json())
+
+
+class UserSerializerTestCase(APITestCase):
+    """ Тестирование сериализатора пользователя """
+    def setUp(self) -> None:
+        """ Создает экземпляр объекта для тестов """
+        self.user = User.objects.create(email='admin@localhost', first_name='admin')
+        self.user.set_password('admin')
+        self.user.save()
+
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+
+    def test_serialize_user(self):
+        """ Тестирование сериализации пользователя """
+
+        serializer = UserSerializer(self.user)
+        print(serializer.data)
+
+        self.assertEqual(serializer.data['email'], 'admin@localhost')
+        self.assertEqual(serializer.data['first_name'], 'admin')
+        self.assertEqual(serializer.data['last_name'], '')
+
+
+    def test_deserialize_user(self):
+        """ Тестирование десериализации пользователя """
+
+        data = {
+            'email': 'new_admin@localhost',
+            'first_name': 'new_admin',
+            'last_name': 'new_admin_last_name',
+            'password': 'new_admin_password'
+        }
+
+        serializer = UserSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+
+        self.assertEqual(serializer.data['email'], 'new_admin@localhost')
+        self.assertEqual(serializer.data['first_name'], 'new_admin')
+        self.assertEqual(serializer.data['last_name'], 'new_admin_last_name')
+
+    def test_validation(self):
+        """ Тестирование валидации данных пользователя """
+
+        data = {
+            'email': 'new_admin@localhost',
+            'first_name': 'new_admin',
+            'last_name': 'new_admin_last_name',
+            'password': 'new_admin_password'
+        }
+
+        serializer = UserSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+
+        data['password'] = 'new_admin_password1'
+        serializer = UserSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+
+
+    def test_update(self):
+        """ Тестирование изменения информации о пользователе """
+
+        data = {
+            'first_name': 'updated_admin',
+            'last_name': 'updated_admin_last_name',
+            'email': 'updated_admin@localhost',
+            'password': 'updated_admin_password'
+        }
+
+        serializer = UserSerializer(self.user, data=data)
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+
+        self.assertEqual(serializer.data['email'], 'updated_admin@localhost')
+        self.assertEqual(serializer.data['first_name'], 'updated_admin')
+        self.assertEqual(serializer.data['last_name'], 'updated_admin_last_name')

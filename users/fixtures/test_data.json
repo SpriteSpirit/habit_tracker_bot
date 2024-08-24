@@ -56,7 +56,7 @@
     "fields": {
         "user": 1,
         "action": "habit1",
-        "place": "test",
+        "place": "test_place",
         "time": "15:00:00",
         "frequency": 1,
         "execution_time": "00:02:00",
