@@ -129,6 +129,7 @@ class HabitSerializerTestCase(APITestCase):
         """ Проверяет, что десериализатор возвращает корректные данные """
 
         serializer = HabitSerializer(data=self.habit.__dict__)  # !!!
+        print(serializer)
         self.assertTrue(serializer.is_valid())
         serializer.save()
 

@@ -132,7 +132,7 @@ class UserSerializerTestCase(APITestCase):
 
         self.assertEqual(serializer.data['email'], 'admin@localhost')
         self.assertEqual(serializer.data['first_name'], 'admin')
-        self.assertEqual(serializer.data['last_name'], '')
+        self.assertEqual(serializer.data['last_name'], None)
 
     def test_deserialize_user(self):
         """ Тестирование десериализации пользователя """
