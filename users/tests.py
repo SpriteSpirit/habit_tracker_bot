@@ -17,7 +17,6 @@ class UserTestCase(APITestCase):
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
-
     def test_create_user(self):
         """ Тестирование создания пользователя """
 
@@ -33,7 +32,6 @@ class UserTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.json()['email'], 'new_user@localhost')
 
-
     def test_get_user(self):
         """ Тестирование получения информации о пользователе """
 
@@ -42,7 +40,6 @@ class UserTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['email'], 'admin@localhost')
-
 
     def test_update_user(self):
         """ Тестирование изменения информации о пользователе """
@@ -59,7 +56,6 @@ class UserTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['email'], 'updated_user@localhost')
 
-
     def test_delete_user(self):
         """ Тестирование удаления пользователя """
 
@@ -70,6 +66,7 @@ class UserTestCase(APITestCase):
 
 class TokenTestCase(APITestCase):
     """ Тестирование получения токена """
+
     def setUp(self) -> None:
         """ Создает экземпляр объекта для тестов """
         self.user = User.objects.create(email='admin@localhost')
@@ -91,7 +88,6 @@ class TokenTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('access', response.json())
-
 
     def test_refresh_token(self):
         """ Тестирование получения нового токена на основе старого """
@@ -118,6 +114,7 @@ class TokenTestCase(APITestCase):
 
 class UserSerializerTestCase(APITestCase):
     """ Тестирование сериализатора пользователя """
+
     def setUp(self) -> None:
         """ Создает экземпляр объекта для тестов """
         self.user = User.objects.create(email='admin@localhost', first_name='admin')
@@ -126,7 +123,6 @@ class UserSerializerTestCase(APITestCase):
 
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
-
 
     def test_serialize_user(self):
         """ Тестирование сериализации пользователя """
@@ -137,7 +133,6 @@ class UserSerializerTestCase(APITestCase):
         self.assertEqual(serializer.data['email'], 'admin@localhost')
         self.assertEqual(serializer.data['first_name'], 'admin')
         self.assertEqual(serializer.data['last_name'], '')
-
 
     def test_deserialize_user(self):
         """ Тестирование десериализации пользователя """
@@ -174,7 +169,6 @@ class UserSerializerTestCase(APITestCase):
         data['password'] = 'new_admin_password1'
         serializer = UserSerializer(data=data)
         self.assertFalse(serializer.is_valid())
-
 
     def test_update(self):
         """ Тестирование изменения информации о пользователе """

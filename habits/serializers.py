@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Habit
-from .validators import PleasantHabit
+from .validators import PleasantHabit, FrequencyValidator
 
 
 class PleasantHabitSerializer(serializers.ModelSerializer):
@@ -17,6 +17,9 @@ class HabitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Habit
         fields = '__all__'
+        validators = [
+            FrequencyValidator()
+        ]
 
     def get_pleasant_habit(self, instance):
         # Получить список приятных привычек для текущей привычки
@@ -31,5 +34,6 @@ class HabitCreateSerializer(serializers.ModelSerializer):
         model = Habit
         fields = '__all__'
         validators = [
-            PleasantHabit(fields)
+            PleasantHabit(fields),
+            FrequencyValidator()
         ]

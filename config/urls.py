@@ -24,7 +24,7 @@ urlpatterns = [
     path('users/', include('users.urls', 'users')),
     path('', include('habits.urls', 'habits')),
 
-# Генерация схемы
+    # Генерация схемы
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     # Swagger UI
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),

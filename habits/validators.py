@@ -1,4 +1,4 @@
-from rest_framework.validators import ValidationError
+from rest_framework.serializers import ValidationError
 
 
 class PleasantHabit:
@@ -39,6 +39,8 @@ class FrequencyValidator:
         self.max_value = max_value
 
     def __call__(self, value):
-        if value < self.min_value or value > self.max_value:
-            raise ValidationError(f'Периодичность должна быть от {self.min_value} до {self.max_value} дней.\n'
+        frequency = dict(value).get('frequency')
+
+        if int(frequency) < self.min_value or int(frequency) > self.max_value:
+            raise ValidationError(f'Периодичность должна быть от {self.min_value} до {self.max_value} дней. '
                                   f'Нельзя выполнять привычку реже, чем 1 раз в 7 дней.')

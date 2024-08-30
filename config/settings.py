@@ -88,7 +88,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'habit_tracker_bot',
         'USER': 'postgres',
-        'PASSWORD': '2277',
+        'PASSWORD': '1z384AB732cd',
         'HOST': 'localhost',
     }
 }
@@ -175,8 +175,10 @@ CORS_ALLOW_METHODS = (
     "PUT",
 )
 
+# Разрешает запросы из всех источников
 CORS_ALLOW_ALL_ORIGINS = False
 
+# Конкретные источники, доступ с которых для кросс-доменных запросов разрешён
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8005",
     "http://127.0.0.1:9000",
