@@ -1,7 +1,5 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-# from rest_framework.response import Response
-# from rest_framework.views import APIView
 
 from habits.models import Habit
 from habits.permissions import IsOwnerOrReadOnly
@@ -29,16 +27,3 @@ class HabitViewSet(viewsets.ModelViewSet):
         if self.request.query_params.get('is_public'):
             return Habit.objects.filter(is_public=True)
         return super().get_queryset()
-
-
-# class SendRemindersView(APIView):
-#     """ Отправляет напоминания о выполнении привычек в Telegram бот """
-#
-#     def post(self, request):
-#         reminders = Habit.objects.filter(frequency=1, is_public=True)
-#
-#         for reminder in reminders:
-#             # Отправить напоминание в Telegram бот
-#             # send_reminder.delay(reminder.id)
-#
-#             return Response()

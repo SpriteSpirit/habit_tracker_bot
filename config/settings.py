@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 import os
+
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -161,10 +163,23 @@ CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
 CELERY_TIMEZONE = os.environ.get('CELERY_TIMEZONE')
 CELERY_ENABLE_UTC = os.environ.get('CELERY_ENABLE_UTC')
 
-CELERY_ACCEPT_CONTENT = os.environ.get('CELERY_ACCEPT_CONTENT')
+CELERY_ACCEPT_CONTENT = os.environ.get('CELERY_ACCEPT_CONTENT').split()
 CELERY_TASK_SERIALIZER = os.environ.get('CELERY_TASK_SERIALIZER')
 CELERY_RESULT_SERIALIZER = os.environ.get('CELERY_RESULT_SERIALIZER')
 CELERY_TASK_DEFAULT_QUEUE = os.environ.get('CELERY_TASK_DEFAULT_QUEUE')
+
+# Флаг отслеживания выполнения задач
+CELERY_TASK_TRACK_STARTED = os.environ.get('CELERY_TASK_TRACK_STARTED')
+
+# Максимальное время на выполнение задачи
+CELERY_TASK_TIME_LIMIT = int(os.environ.get('CELERY_TASK_TIME_LIMIT'))
+
+CELERY_BEAT_SCHEDULE = {
+    'send_telegram_reminders': {
+        'task': 'habits.tasks.send_telegram_reminders',
+        'schedule': crontab(minute='*/1'),
+    },
+}
 
 CORS_ALLOW_METHODS = (
     "DELETE",
@@ -187,3 +202,9 @@ CORS_ALLOWED_ORIGINS = [
 CSRF_TRUSTED_ORIGINS = [
     "https://read-and-write.example.com",
 ]
+
+CURRENCY_API_URL = 'https://api.currencyapi.com/'
+CURRENCY_API_KEY = 'cur_live_gQuGgZbWu0ejdJZALIwZb15NXdgvxJ7XjqFKjz5N'
+
+TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
+TELEGRAM_URL = os.environ.get('TELEGRAM_URL')

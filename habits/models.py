@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.db import models
 from users.models import User
 
@@ -9,10 +11,15 @@ class Habit(models.Model):
     """ Привычка """
     objects = models.Manager()
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='habits', verbose_name='Пользователь', **NULLABLE)
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE,
+                             related_name='habits',
+                             verbose_name='Пользователь',
+                             **NULLABLE)
     action = models.CharField(max_length=100, verbose_name='Действие')
     place = models.CharField(max_length=50, verbose_name='Место')
     time = models.TimeField(verbose_name='Время')
+    date_start = models.DateField(verbose_name='Дата начала', default=date.today)
     frequency = models.PositiveIntegerField(default=1, verbose_name='Периодичность')
     execution_time = models.DurationField(max_length=2, verbose_name='Время на выполнение')
     is_pleasant = models.BooleanField(default=False, verbose_name='Приятная привычка')
