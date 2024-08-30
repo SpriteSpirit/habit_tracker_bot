@@ -21,6 +21,9 @@ coverage = "^7.6.1"
 django-cors-headers = "^4.4.0"
 python-dotenv = "^1.0.1"
 flake8 = "^7.1.1"
+gevent = "^24.2.1"
+redis = "^5.0.8"
+flower = "^2.0.1"
 
 [build-system]
 requires = ["poetry-core"]
