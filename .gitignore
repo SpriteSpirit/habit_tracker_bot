@@ -167,3 +167,8 @@ cython_debug/
 /.idea/inspectionProfiles/profiles_settings.xml
 /.idea/inspectionProfiles/Project_Default.xml
 /.idea/vcs.xml
+/flake8_report/
+/flake8_report/back.svg
+/flake8_report/index.html
+/flake8_report/styles.css
+/flake8_report/file.svg
