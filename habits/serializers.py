@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Habit
-from .validators import PleasantHabit, FrequencyValidator
+from .validators import PleasantHabit, FrequencyValidator, TimeValidator
 
 
 class PleasantHabitSerializer(serializers.ModelSerializer):
@@ -18,7 +18,9 @@ class HabitSerializer(serializers.ModelSerializer):
         model = Habit
         fields = '__all__'
         validators = [
-            FrequencyValidator()
+            FrequencyValidator(),
+            PleasantHabit(fields),
+            TimeValidator(fields)
         ]
 
     def get_pleasant_habit(self, instance):
@@ -35,5 +37,6 @@ class HabitCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
         validators = [
             PleasantHabit(fields),
-            FrequencyValidator()
+            FrequencyValidator(),
+            TimeValidator(fields)
         ]

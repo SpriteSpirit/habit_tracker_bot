@@ -1,3 +1,7 @@
+from datetime import datetime, timedelta
+
+from dateutil.relativedelta import relativedelta
+from django.utils import timezone
 from rest_framework.serializers import ValidationError
 
 
@@ -44,3 +48,29 @@ class FrequencyValidator:
         if int(frequency) < self.min_value or int(frequency) > self.max_value:
             raise ValidationError(f'Периодичность должна быть от {self.min_value} до {self.max_value} дней. '
                                   f'Нельзя выполнять привычку реже, чем 1 раз в 7 дней.')
+
+
+class TimeValidator:
+    """
+    Проверяет, что время назначено не ранее чем за 5 минут до выполнения
+    """
+
+    def __init__(self, field):
+        self.field = field
+
+    def __call__(self, value):
+        start_time = value.get('time')
+        start_date = value.get('date_start')
+
+        date_now = datetime.now().date()
+        current_time = timezone.localtime()
+
+        if start_date == date_now:
+            start_datetime = datetime.combine(date_now, start_time)
+            five_minutes_ago = start_datetime - relativedelta(minutes=5)
+
+            print(start_datetime.time(), five_minutes_ago.time())  # Вывод для отладки
+            if current_time.time() >= five_minutes_ago.time():
+                print(start_datetime.time() > five_minutes_ago.time())
+                raise ValidationError(
+                    f'Задача "{value.get("action")}" может быть назначена не ранее чем за 5 минут до выполнения.')

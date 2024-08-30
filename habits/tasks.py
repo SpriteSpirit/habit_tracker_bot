@@ -17,7 +17,7 @@ def send_telegram_reminders():
     token = settings.TELEGRAM_TOKEN
 
     time_now = timezone.localtime()
-    time = (time_now + relativedelta(minutes=1)).strftime('%H:%M')
+    time = (time_now + relativedelta(minutes=5)).strftime('%H:%M')
     date_now = datetime.now().date().strftime('%Y-%m-%d')
     habits = Habit.objects.filter(time=time, is_pleasant=False, date_start=date_now)
 
