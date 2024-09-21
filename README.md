@@ -214,6 +214,157 @@ SECRET_KEY=<секретный_ключ>
 
 **index.html** - файл с отчетом
 
+### Развертывание с помощью Docker и Docker Compose
+Этот проект можно легко развернуть с помощью Docker и Docker Compose. Для этого необходимо установить Docker и Docker Compose на вашей системе.
+
+1. **Создайте файлы Dockerfile и docker-compose.yaml в корне проекта:**
+#### Dockerfile
+ - описывает шаги для создания образа Docker для приложения Django, используя Poetry для управления зависимостями:
+
+```dockerfile
+FROM python:3.11-slim-buster
+
+ENV PYTHONUNBUFFERED 1
+
+WORKDIR /app
+
+RUN groupadd --gid 1001 app && useradd --uid 1001 --gid 1001 --shell /bin/bash --create-home app
+
+COPY poetry.lock pyproject.toml ./
+RUN python -m pip install --no-cache-dir poetry==1.8.3 \
+    && poetry config virtualenvs.create false \
+    && poetry install --no-interaction --no-ansi \
+    && rm -rf $(poetry config cache-dir)/{cache, artifacts}
+
+COPY . .
+
+USER app
+
+# Улучшение: создание не привилегированного пользователя
+# Улучшение: использование slim-buster для уменьшения размера образа
+# Улучшение: явно указание gid и uid для пользователя
+
+# Добавить COPY для статических файлов (если есть)
+# Добавить команду для сбора статических файлов
+
+# Добавлен этап очистки, удаление лишних файлов после сборки.
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+EXPOSE 8000
+```
+#### Docker Compose
+Файл `docker-compose.yaml` описывает сервисы, необходимые для запуска приложения, включая Django, PostgreSQL, Redis и Celery:
+    
+```yaml
+services:
+  db:
+    image: postgres
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data/pgdata
+
+  redis:
+    image: redis:alpine
+    env_file:
+      - .env
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+
+  celery:
+    build: .
+    command: celery -A config worker --beat --scheduler django --loglevel=info
+    depends_on:
+      - db
+      - redis:
+          condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - SECRET_KEY: ${SECRET_KEY}
+      - REDIS_HOST: redis
+      - DJANGO_SETTINGS_MODULE: config.settings
+    restart: always
+
+  web:
+    build: .
+    command:
+    - python manage.py migrate
+    - python manage.py csu
+    - python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+      - celery
+    env_file:
+      - .env
+    environment:
+      - DATABASE_HOST=db
+    restart: always
+
+```
+2. **Запустите контейнеры Docker Compose:**
+
+   ```bash
+   docker-compose up --build
+   ```
+
+   Этот процесс создаст и запустит все необходимые контейнеры. Для запуска в фоновом режиме используйте:
+
+   ```bash
+   docker-compose up --build -d
+   ```
+
+3. **Примените миграции Django:**
+ ```bash
+   docker-compose exec app python manage.py migrate
+   ```
+
+4. **Приложение будет доступно по адресу `http://localhost:8000`.**
+
+## Остановка и очистка
+
+- **Остановить контейнеры:**
+
+  ```bash
+  docker-compose down
+  ```
+
+- **Очистить тома данных (если используются):**
+
+  ```bash
+  docker-compose down -v
+  ```
+
+## Примечания
+
+- Убедитесь, что у вас установлен Docker и Docker Compose.
+- Измените `your_password` в файле `.env` на свой пароль для PostgreSQL.
+- Вы можете остановить контейнеры с помощью команды `docker-compose down`.
+- Убедитесь, что порты, используемые в `docker-compose.yaml`, свободны на вашем хосте.
+- Для доступа к базе данных PostgreSQL внутри контейнера используйте `docker-compose exec db psql -U your_db_user your_db_name`.
+- Для просмотра логов Celery или Django используйте `docker-compose logs -f celery` или `docker-compose logs -f app`.
+
+## Дополнительно
+
+- **Резервное копирование данных:** Регулярно создавайте резервные копии данных PostgreSQL, если это необходимо.
+- **Обновления:** Время от времени обновляйте образы Docker и зависимости проекта для безопасности и производительности.
+- **Poetry:** Убедитесь, что версия Poetry, указанная в Dockerfile, совпадает с той, что используется в вашем проекте для избежания конфликтов зависимостей.
+
+
+
+
+
 ### **Автор**
 
 ```Халуева Ангелина||Sprite_Spirit```
