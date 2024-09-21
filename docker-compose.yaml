@@ -1,55 +1,85 @@
 services:
   db:
-    image: postgres
+    image: postgres:16
+    restart: always
     env_file:
       - .env
     environment:
       POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - pgdata:/var/lib/postgresql/data/pgdata
-
-  redis:
-    image: redis:alpine
-    env_file:
-      - .env
-    ports:
-      - "6379:6379"
+      - db_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
-      interval: 1s
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
+      interval: 10s
       timeout: 5s
       retries: 5
 
-  celery:
-    build: .
-    command: celery -A config worker --beat --scheduler django --loglevel=info
-    depends_on:
-      - db
-      - redis:
-          condition: service_healthy
-    env_file:
-      - .env
-    environment:
-      - SECRET_KEY: ${SECRET_KEY}
-      - REDIS_HOST: redis
-      - DJANGO_SETTINGS_MODULE: config.settings
+  redis:
+    image: redis:alpine
     restart: always
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   web:
     build: .
-    command:
-    - python manage.py migrate
-    - python manage.py csu
-    - python manage.py runserver 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:8000
+    restart: always
+    volumes:
+      - .:/app
     ports:
-      - "8000:8000"
-    depends_on:
-      - db
-      - redis
-      - celery
+      - "8090:8000"
     env_file:
       - .env
-    environment:
-      - DATABASE_HOST=db
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "pgrep -f runserver || exit 1" ]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  celery_worker:
+    build: .
+    command: celery -A config worker -l info
     restart: always
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+
+  celery_beat:
+    build: .
+    command: celery -A config beat -l info -S django
+    restart: always
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+
+volumes:
+  db_data:

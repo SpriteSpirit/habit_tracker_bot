@@ -224,13 +224,12 @@ SECRET_KEY=<секретный_ключ>
 ```dockerfile
 FROM python:3.11-slim-buster
 
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-RUN groupadd --gid 1001 app && useradd --uid 1001 --gid 1001 --shell /bin/bash --create-home app
-
 COPY poetry.lock pyproject.toml ./
+
 RUN python -m pip install --no-cache-dir poetry==1.8.3 \
     && poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi \
@@ -238,19 +237,15 @@ RUN python -m pip install --no-cache-dir poetry==1.8.3 \
 
 COPY . .
 
-USER app
+RUN apt-get update && apt-get install -y procps netcat curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y netcat
 
-# Улучшение: создание не привилегированного пользователя
-# Улучшение: использование slim-buster для уменьшения размера образа
-# Улучшение: явно указание gid и uid для пользователя
+# Копируем и устанавливаем точку входа
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
-# Добавить COPY для статических файлов (если есть)
-# Добавить команду для сбора статических файлов
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
-# Добавлен этап очистки, удаление лишних файлов после сборки.
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-EXPOSE 8000
 ```
 #### Docker Compose
 Файл `docker-compose.yaml` описывает сервисы, необходимые для запуска приложения, включая Django, PostgreSQL, Redis и Celery:
@@ -258,59 +253,89 @@ EXPOSE 8000
 ```yaml
 services:
   db:
-    image: postgres
+    image: postgres:16
+    restart: always
     env_file:
       - .env
     environment:
       POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - pgdata:/var/lib/postgresql/data/pgdata
-
-  redis:
-    image: redis:alpine
-    env_file:
-      - .env
-    ports:
-      - "6379:6379"
+      - db_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
-      interval: 1s
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
+      interval: 10s
       timeout: 5s
       retries: 5
 
-  celery:
-    build: .
-    command: celery -A config worker --beat --scheduler django --loglevel=info
-    depends_on:
-      - db
-      - redis:
-          condition: service_healthy
-    env_file:
-      - .env
-    environment:
-      - SECRET_KEY: ${SECRET_KEY}
-      - REDIS_HOST: redis
-      - DJANGO_SETTINGS_MODULE: config.settings
+  redis:
+    image: redis:alpine
     restart: always
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   web:
     build: .
-    command:
-    - python manage.py migrate
-    - python manage.py csu
-    - python manage.py runserver 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:8000
+    restart: always
+    volumes:
+      - .:/app
     ports:
-      - "8000:8000"
-    depends_on:
-      - db
-      - redis
-      - celery
+      - "8090:8000"
     env_file:
       - .env
-    environment:
-      - DATABASE_HOST=db
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "pgrep -f runserver || exit 1" ]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  celery_worker:
+    build: .
+    command: celery -A config worker -l info
     restart: always
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+
+  celery_beat:
+    build: .
+    command: celery -A config beat -l info -S django
+    restart: always
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+
+volumes:
+  db_data:
 
 ```
 2. **Запустите контейнеры Docker Compose:**
@@ -360,8 +385,6 @@ services:
 - **Резервное копирование данных:** Регулярно создавайте резервные копии данных PostgreSQL, если это необходимо.
 - **Обновления:** Время от времени обновляйте образы Docker и зависимости проекта для безопасности и производительности.
 - **Poetry:** Убедитесь, что версия Poetry, указанная в Dockerfile, совпадает с той, что используется в вашем проекте для избежания конфликтов зависимостей.
-
-
 
 
 
