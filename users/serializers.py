@@ -29,6 +29,7 @@ class UserSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
+            tg_chat_id=validated_data['tg_chat_id'],
         )
 
         user.set_password(password)
@@ -41,6 +42,7 @@ class UserSerializer(serializers.ModelSerializer):
         instance.email = validated_data.get('email', instance.email)
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.tg_chat_id = validated_data.get('tg_chat_id', instance.tg_chat_id)
 
         if 'password' in validated_data:
             instance.set_password(validated_data['password'])

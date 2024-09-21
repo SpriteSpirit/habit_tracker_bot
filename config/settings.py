@@ -87,11 +87,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': os.environ.get("ENGINE"),
-        'NAME': os.environ.get("NAME"),
-        'USER': os.environ.get("USER"),
-        'PASSWORD': os.environ.get("PASSWORD"),
-        'HOST': os.environ.get("HOST"),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get("DATABASE_NAME"),
+        'USER': os.environ.get("DATABASE_USER"),
+        'PASSWORD': os.environ.get("DATABASE_PASSWORD"),
+        'HOST': 'localhost'  # os.environ.get("DATABASE_HOST"),
     }
 }
 
@@ -116,7 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'ru-ru'
+LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'Europe/Moscow'
 
@@ -160,19 +160,19 @@ SIMPLE_JWT = {
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
 
-CELERY_TIMEZONE = os.environ.get('CELERY_TIMEZONE')
-CELERY_ENABLE_UTC = os.environ.get('CELERY_ENABLE_UTC')
+CELERY_TIMEZONE = 'Europe/Moscow'
+CELERY_ENABLE_UTC = True
 
-CELERY_ACCEPT_CONTENT = os.environ.get('CELERY_ACCEPT_CONTENT').split()
-CELERY_TASK_SERIALIZER = os.environ.get('CELERY_TASK_SERIALIZER')
-CELERY_RESULT_SERIALIZER = os.environ.get('CELERY_RESULT_SERIALIZER')
-CELERY_TASK_DEFAULT_QUEUE = os.environ.get('CELERY_TASK_DEFAULT_QUEUE')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_DEFAULT_QUEUE = 'default'
 
 # Флаг отслеживания выполнения задач
-CELERY_TASK_TRACK_STARTED = os.environ.get('CELERY_TASK_TRACK_STARTED')
+CELERY_TASK_TRACK_STARTED = True
 
 # Максимальное время на выполнение задачи
-CELERY_TASK_TIME_LIMIT = int(os.environ.get('CELERY_TASK_TIME_LIMIT'))
+CELERY_TASK_TIME_LIMIT = 60 * 30
 
 CELERY_BEAT_SCHEDULE = {
     'send_telegram_reminders': {

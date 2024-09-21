@@ -17,17 +17,16 @@ def send_telegram_reminders():
     token = settings.TELEGRAM_TOKEN
 
     time_now = timezone.localtime()
-    time = (time_now + relativedelta(minutes=5)).strftime('%H:%M')
+    time = time_now.strftime('%H:%M')
     date_now = datetime.now().date().strftime('%Y-%m-%d')
     habits = Habit.objects.filter(time=time, is_pleasant=False, date_start=date_now)
 
     if habits:
         for habit in habits:
-            print(habit)
             requests.post(
                 url=f'{url}{token}/sendMessage',
                 data={
-                    'chat_id': habit.user.tg_chat_id,
+                    'chat_id': int(habit.user.tg_chat_id),
                     'text': send_telegram_message(habit)
                 }
             )

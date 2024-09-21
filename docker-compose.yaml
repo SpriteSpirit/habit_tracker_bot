@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data/pgdata
+
+  redis:
+    image: redis:alpine
+    env_file:
+      - .env
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+
+  celery:
+    build: .
+    command: celery -A config worker --beat --scheduler django --loglevel=info
+    depends_on:
+      - db
+      - redis:
+          condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - SECRET_KEY: ${SECRET_KEY}
+      - REDIS_HOST: redis
+      - DJANGO_SETTINGS_MODULE: config.settings
+    restart: always
+
+  web:
+    build: .
+    command:
+    - python manage.py migrate
+    - python manage.py csu
+    - python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+      - celery
+    env_file:
+      - .env
+    environment:
+      - DATABASE_HOST=db
+    restart: always

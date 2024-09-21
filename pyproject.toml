@@ -25,6 +25,7 @@ gevent = "^24.2.1"
 redis = "^5.0.8"
 flower = "^2.0.1"
 flake8-html = "^0.4.3"
+django-celery-beat = "^2.7.0"
 
 [build-system]
 requires = ["poetry-core"]
