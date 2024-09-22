@@ -105,12 +105,15 @@ Backend-часть приложения предоставляет API для в
     ├── .env_example
     ├── .gitignore
     ├── celerybeat-schedule.db
+    ├── docker-entrypoint.sh
+    ├── Dockerfile
+    ├── docker-compose.yaml
+    ├── .dockerignore
     ├── manage.py
     ├── poetry.lock
     ├── poetry.toml
     └── README.md
 ```
-
 
 ### Установка:
 
@@ -198,8 +201,11 @@ SECRET_KEY=<секретный_ключ>
 ```bash
    coverage report
 ```
+
 ### PEP8
+
 **Для формирования отчета при помощи flake8-html выполните команду:**
+
 ```bash
   flake8 --format=html --ignore=migrations/,venv/,E501 --htmldir=flake8_report ./
 ```
@@ -215,11 +221,38 @@ SECRET_KEY=<секретный_ключ>
 **index.html** - файл с отчетом
 
 ### Развертывание с помощью Docker и Docker Compose
-Этот проект можно легко развернуть с помощью Docker и Docker Compose. Для этого необходимо установить Docker и Docker Compose на вашей системе.
 
-1. **Создайте файлы Dockerfile и docker-compose.yaml в корне проекта:**
+Этот проект можно легко развернуть с помощью Docker и Docker Compose. Для этого необходимо установить Docker и Docker
+Compose на вашей системе.
+
+1. **Создайте файл docker-entrypoint.sh в корне проекта:**
+```bash
+#!/bin/bash
+
+echo "Waiting for database..."
+while ! nc -z db 5432; do
+  sleep 1
+done
+
+# Применяем миграции в БД
+echo "Apply database migrations"
+python manage.py migrate
+
+# Создаем суперпользователя
+echo "Create superuser admin@localhost - admin"
+python manage.py csu
+
+# Выполняем команду, переданную в контейнер (определяется в docker-compose)
+exec "$@"
+
+```
+
+
+2. **Создайте файлы Dockerfile и docker-compose.yaml в корне проекта:**
+
 #### Dockerfile
- - описывает шаги для создания образа Docker для приложения Django, используя Poetry для управления зависимостями:
+
+- описывает шаги для создания образа Docker для приложения Django, используя Poetry для управления зависимостями:
 
 ```dockerfile
 FROM python:3.11-slim-buster
@@ -247,9 +280,12 @@ RUN chmod +x /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 ```
+
 #### Docker Compose
-Файл `docker-compose.yaml` описывает сервисы, необходимые для запуска приложения, включая Django, PostgreSQL, Redis и Celery:
-    
+
+Файл `docker-compose.yaml` описывает сервисы, необходимые для запуска приложения, включая Django, PostgreSQL, Redis и
+Celery:
+
 ```yaml
 services:
   db:
@@ -265,7 +301,7 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -276,7 +312,7 @@ services:
     ports:
       - "6379:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -338,7 +374,8 @@ volumes:
   db_data:
 
 ```
-2. **Запустите контейнеры Docker Compose:**
+
+3. **Запустите контейнеры Docker Compose:**
 
    ```bash
    docker-compose up --build
@@ -350,12 +387,13 @@ volumes:
    docker-compose up --build -d
    ```
 
-3. **Примените миграции Django:**
+4. **Примените миграции Django:**
+
  ```bash
    docker-compose exec app python manage.py migrate
    ```
 
-4. **Приложение будет доступно по адресу `http://localhost:8000`.**
+5. **Приложение будет доступно по адресу `http://localhost:8000`.**
 
 ## Остановка и очистка
 
@@ -377,16 +415,16 @@ volumes:
 - Измените `your_password` в файле `.env` на свой пароль для PostgreSQL.
 - Вы можете остановить контейнеры с помощью команды `docker-compose down`.
 - Убедитесь, что порты, используемые в `docker-compose.yaml`, свободны на вашем хосте.
-- Для доступа к базе данных PostgreSQL внутри контейнера используйте `docker-compose exec db psql -U your_db_user your_db_name`.
+- Для доступа к базе данных PostgreSQL внутри контейнера
+  используйте `docker-compose exec db psql -U your_db_user your_db_name`.
 - Для просмотра логов Celery или Django используйте `docker-compose logs -f celery` или `docker-compose logs -f app`.
 
 ## Дополнительно
 
 - **Резервное копирование данных:** Регулярно создавайте резервные копии данных PostgreSQL, если это необходимо.
 - **Обновления:** Время от времени обновляйте образы Docker и зависимости проекта для безопасности и производительности.
-- **Poetry:** Убедитесь, что версия Poetry, указанная в Dockerfile, совпадает с той, что используется в вашем проекте для избежания конфликтов зависимостей.
-
-
+- **Poetry:** Убедитесь, что версия Poetry, указанная в Dockerfile, совпадает с той, что используется в вашем проекте
+  для избежания конфликтов зависимостей.
 
 ### **Автор**
 

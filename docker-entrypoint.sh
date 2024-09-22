@@ -5,15 +5,11 @@ while ! nc -z db 5432; do
   sleep 1
 done
 
-# Collect static files
-#echo "Collect static files"
-#python manage.py collectstatic --noinput
-
-# Apply database migrations
+# Применяем миграции в БД
 echo "Apply database migrations"
 python manage.py migrate
 
-# Apply database migrations
+# Создаем суперпользователя
 echo "Create superuser admin@localhost - admin"
 python manage.py csu
 
